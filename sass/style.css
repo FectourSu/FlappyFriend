@@ -1,0 +1,123 @@
+* {
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+}
+
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+:focus,
+:active {
+  outline: none;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+aside,
+nav,
+footer,
+header,
+section {
+  display: block;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+  widows: 100%;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: inherit;
+  font-style: inherit;
+}
+
+body {
+  background: url("../img/bg.png") no-repeat center;
+  background-size: cover;
+  overflow: hidden;
+}
+
+.canvas {
+  display: inline-block;
+  border: 1px solid #000;
+}
+
+.img {
+  display: block;
+  padding: 10px;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Chrome/Safari/Opera */
+  /* Konqueror */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
+not supported by any browser */
+}
+
+.container {
+  text-align: center;
+}
+
+@media only screen and (max-width: 325px) {
+  .container {
+    display: inline-block !important;
+  }
+  body {
+    background: url(/bg.png) 0 0 no-repeat !important;
+    background-size: 400vh !important;
+    background-color: #100d18 !important;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+/*# sourceMappingURL=style.css.map */
