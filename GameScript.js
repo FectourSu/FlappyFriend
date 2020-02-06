@@ -52,14 +52,14 @@ cvs.addEventListener("click", function(evt){
 
     case state.getReady:
       state.current = state.game;
-      SMOOSHING_S.play();
+      SWOOSHING_S.play();
       break;
       
     case state.game:
       if(friend.y - friend.radius <= 0) 
         return;
-      friend.flap();
       FLAP_S.play();
+      friend.flap();
       break;
 
     case state.over:
@@ -189,9 +189,9 @@ const friend = {
         this.y = cvs.height - fg.h - this.h/3;
         if(state.current == state.game)
         {
+          DIE_S.play();
           state.current = state.over;
           this.frame = 1;
-          DIE_S.play();
         }
       }
 
