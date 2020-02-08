@@ -58,7 +58,6 @@ cvs.addEventListener("click", function(evt){
     case state.game:
       if(friend.y - friend.radius <= 0) 
         return;
-      FLAP_S.play();
       friend.flap();
       break;
 
@@ -163,12 +162,13 @@ const friend = {
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.rotate(this.rotation);
+    ctx.rotate(this.rotation*DEGREE);
     ctx.drawImage(sprite, friend.sX, friend.sY, this.w, this.h, -this.w / 2, -this.h / 2, this.w, this.h);
     ctx.restore();
   },
 
   flap: function(){
+    FLAP_S.play();
     this.speed = - this.jump;
   },
 
@@ -176,8 +176,9 @@ const friend = {
 
     if(state.current == state.getReady)
     {
-      this.y = 150; //Reset position of the friend after gameover
-      this.rotation = 0 * DEGREE;
+        this.rotation = 0;
+        this.y += (frames % 10 == 0) ? Math.sin(frames * DEGREE) : 0;
+        this.frame += (frames % 10 == 0) ? 1 : 0;
     }
     else
     {
@@ -194,12 +195,14 @@ const friend = {
           this.frame = 1;
         }
       }
+      if(this.speed >= this.jump) //if the speed is greater then the jump means the bird is falling down
+         this.rotation = Math.max(-75, -75 * this.speed / (-2 * this.jump));
 
-      if(this.speed >= this.jump)
-        this.rotation = 65 * DEGREE;
       else
-        this.rotation = -25 * DEGREE;
+        this.rotation = Math.min(60, 60 * this.speed / (this.jump * 3));
 
+      if (state.current == state.over)
+        this.rotation = Math.min(65, 65 * this.speed / (this.jump * 1.5));
     }
   },
   speedReset : function(){
@@ -231,13 +234,14 @@ function draw()
 
   star.draw();
   bg.draw();
-  fg.draw();
   friend.draw();
+  fg.draw();
   getReady.draw();
 }
 
 //Update
 function update() {
+  frames++;
   friend.update();
   fg.update();
   //apartment.update();
