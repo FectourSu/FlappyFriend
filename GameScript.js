@@ -39,8 +39,8 @@ const state = {
 
 //Start button cord
 const startBtn = {
-  x : 302,
-  y : 400,
+  x: 120,
+  y: 263,
   w : 83,
   h : 29
 }
@@ -49,12 +49,11 @@ const startBtn = {
 cvs.addEventListener("click", function(evt){
   switch(state.current)
   {
-
     case state.getReady:
       state.current = state.game;
       SWOOSHING_S.play();
       break;
-      
+
     case state.game:
       if(friend.y - friend.radius <= 0) 
         return;
@@ -64,20 +63,21 @@ cvs.addEventListener("click", function(evt){
     case state.over:
       let rect = cvs.getBoundingClientRect();
       let clickX = evt.clientX - rect.left;
-      let clickY = evt.clickY - rect.top;
+      let clickY = evt.clientY - rect.top;
 
-    if(clickX >= startBtn.x && clickX <= startBtn.x + startBtn.w && clickY >= startBtn.y && clickY <= startBtn.y + startBtn.h)
-    {
-      apartment.reset();
-      freind.speedReset();
-      score.reset();
-      state.current = sate.getReady;
-    }
-    break;
+      //Check if we click start button
+      if (clickX >= startBtn.x && clickX <= startBtn.x + startBtn.w && clickY >= startBtn.y && clickY <= startBtn.y + startBtn.h)
+      {
+        friend.friendReset();
+        apartments.reset();
+        score.reset();
+        state.current = state.getReady;
+      }
+      break;
     
   }
     
-})
+});
 
 //Background
 const bg = {
@@ -177,8 +177,8 @@ const friend = {
     if(state.current == state.getReady)
     {
         this.rotation = 0;
-        this.y += (frames % 10 == 0) ? Math.sin(frames * DEGREE) : 0;
-        this.frame += (frames % 10 == 0) ? 1 : 0;
+        //this.y += (frames % 10 == 0) ? Math.sin(frames * DEGREE) : 0;
+        this.y = 150;
     }
     else
     {
@@ -195,6 +195,7 @@ const friend = {
           this.frame = 1;
         }
       }
+
       if(this.speed >= this.jump) //if the speed is greater then the jump means the bird is falling down
          this.rotation = Math.max(-75, -75 * this.speed / (-2 * this.jump));
 
@@ -205,8 +206,10 @@ const friend = {
         this.rotation = Math.min(65, 65 * this.speed / (this.jump * 1.5));
     }
   },
-  speedReset : function(){
+  friendReset : function(){
     this.speed = 0;
+    this.y = 150;
+    this.frame = 0;
   }
 }
 
@@ -225,6 +228,154 @@ const getReady = {
     }
   }
 }
+//Game over message
+const gameOver = {
+    sX: 205,
+    sY: 228,
+    w: 271,
+    h: 200,
+    x: cvs.width / 2 - 276 / 2,
+    y: 90,
+
+    draw: function () {
+      if (state.current == state.over) {
+        ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w, this.h);
+      }
+    }
+}
+//Apartment
+const apartments = {
+  position: [],
+
+  rand: [
+    {
+      sX: 502,
+      sY: 0
+    },
+    {
+      sX: 554, 
+      sY: 0 
+    }
+    ],
+   
+    w: 53,
+    h: 400,
+    gap: 85,
+    maxYPos: -150,
+    dx: 2,
+
+    draw: function () {
+      for (let i = 0; i < this.position.length; i++) 
+      {
+        let p = this.position[i];
+
+        let topYPos = p.y;
+        let bottomYPos = p.y + this.h + this.gap;
+
+        
+        
+        
+        // top apartment
+        ctx.drawImage(sprite, p.sX, p.sY, this.w, this.h, p.x, topYPos, this.w, this.h);
+
+        // bottom apartment
+        ctx.drawImage(sprite, p.sX2, p.sY2, this.w, this.h, p.x, bottomYPos, this.w, this.h);
+      }
+    },
+
+    update: function () {
+      if (state.current !== state.game)
+       return;
+
+      let rands = this.rand[Math.floor(Math.random() * this.rand.length)];
+      let rands2 = this.rand[Math.floor(Math.random() * this.rand.length)];
+
+      if (frames % 100 == 0) {
+        this.position.push({
+          x: cvs.width,
+          y: this.maxYPos * (Math.random() + 1),
+          sX: rands.sX,
+          sY: rands.sY,
+          sX2: rands2.sX,
+          sY2: rands2.sY
+        });
+      }
+
+      for (let i = 0; i < this.position.length; i++) {
+        let p = this.position[i];
+
+        let bottomapartmentYPos = p.y + this.h + this.gap;
+
+        // Collision detect
+        // Top apartment
+        if (friend.x + friend.radius > p.x && friend.x - friend.radius < p.x + this.w && friend.y + friend.radius > p.y && friend.y - friend.radius < p.y + this.h)
+        {
+          HIT_S.play();
+          friend.frame = 1;
+          state.current = state.over;
+        }
+        // Top apartmenet
+        if (friend.x + friend.radius > p.x && friend.x - friend.radius < p.x + this.w && friend.y + friend.radius > bottomapartmentYPos && friend.y - friend.radius < bottomapartmentYPos + this.h) 
+        {
+          HIT_S.play();
+          friend.frame = 1;
+          state.current = state.over;
+        }
+        // Move the apartment to the left
+        p.x -= this.dx;
+
+        if (p.x == 140) 
+        {
+          SCORE_S.play();
+          score.value += 1;
+          score.best = Math.max(score.value, score.best);
+          localStorage.setItem("best", score.best);
+        }
+
+        // if the apartment go beyond canvas, we delete them from the array
+        if (p.x + this.w <= 0) 
+        {
+          this.position.shift();
+        }
+      }
+    },
+
+    reset: function () {
+      this.position = [];
+    }
+}
+
+//Score
+const score = {
+  best: parseInt(localStorage.getItem("best")) || 0,
+  value: 0,
+  
+  draw: function () {
+    ctx.fillStyle = "#FFF";
+    ctx.strokeStyle = "#000";
+
+    if(state.current == state.game)
+    {
+      ctx.lineWidth = 2;
+      ctx.font = "35px FB";
+      ctx.fillText(this.value, cvs.width / 2.1, 60);
+      ctx.strokeText(this.value, cvs.width / 2.1, 60);
+    }
+    else if (state.current == state.over)
+    {
+      //Score value
+      ctx.font = "20px FB";
+      ctx.fillText(this.value, 225, 186);
+      ctx.strokeText(this.value, 225, 186);
+      // Best score
+      ctx.fillText(this.best, 225, 228);
+      ctx.strokeText(this.best, 225, 228);
+    }
+  },
+  reset: function () {
+    this.value = 0;
+  }
+}
 
 //Draw
 function draw()
@@ -234,17 +385,19 @@ function draw()
 
   star.draw();
   bg.draw();
+  apartments.draw();
   friend.draw();
   fg.draw();
   getReady.draw();
+  gameOver.draw();
+  score.draw();
 }
 
 //Update
 function update() {
-  frames++;
   friend.update();
   fg.update();
-  //apartment.update();
+  apartments.update();
 }
 
 //Loop
