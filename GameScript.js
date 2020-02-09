@@ -13,12 +13,18 @@ sprite.src = "img/sprite.png";
 const sprite2  = new Image();
 sprite2.src = "img/sprite2.png";
 
+const sprite3 = new Image();
+sprite3.src = "img/sprite3.png";
+
+const sprite4 = new Image();
+sprite4.src = "img/sprite4.png";
+
 //Load sounds
 const SCORE_S = new Audio();
 SCORE_S.src = "sound/point.wav";
 
 const HIT_S = new Audio();
-HIT_S.src = "sound/die.wav";
+HIT_S.src = "sound/hit.wav";
 
 const SWOOSHING_S = new Audio();
 SWOOSHING_S.src = "sound/swooshing.wav";
@@ -157,13 +163,15 @@ const friend = {
   speed: 0,
   rotation: 0,
 
-  draw: function(){
+  draw: function(sprite){
     let friend = this.animation[this.frame];
 
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation*DEGREE);
+
     ctx.drawImage(sprite, friend.sX, friend.sY, this.w, this.h, -this.w / 2, -this.h / 2, this.w, this.h);
+
     ctx.restore();
   },
 
@@ -190,7 +198,7 @@ const friend = {
         this.y = cvs.height - fg.h - this.h/3;
         if(state.current == state.game)
         {
-          DIE_S.play();
+          HIT_S.play();
           state.current = state.over;
           this.frame = 1;
         }
@@ -271,9 +279,6 @@ const apartments = {
 
         let topYPos = p.y;
         let bottomYPos = p.y + this.h + this.gap;
-
-        
-        
         
         // top apartment
         ctx.drawImage(sprite, p.sX, p.sY, this.w, this.h, p.x, topYPos, this.w, this.h);
@@ -310,14 +315,14 @@ const apartments = {
         // Top apartment
         if (friend.x + friend.radius > p.x && friend.x - friend.radius < p.x + this.w && friend.y + friend.radius > p.y && friend.y - friend.radius < p.y + this.h)
         {
-          HIT_S.play();
+          DIE_S.play();
           friend.frame = 1;
           state.current = state.over;
         }
         // Top apartmenet
         if (friend.x + friend.radius > p.x && friend.x - friend.radius < p.x + this.w && friend.y + friend.radius > bottomapartmentYPos && friend.y - friend.radius < bottomapartmentYPos + this.h) 
         {
-          HIT_S.play();
+          DIE_S.play();
           friend.frame = 1;
           state.current = state.over;
         }
@@ -377,20 +382,78 @@ const score = {
   }
 }
 
+//ScoreMedal
+const medal = {
+ medalarr: [{
+       sX: 312,
+       sY: 112
+     },
+     {
+       sX: 360,
+       sY: 112
+     },
+     {
+      sX: 312,
+      sY: 158
+     },
+     {
+       sX: 360,
+       sY: 158
+     }
+   ],
+   x: 73,
+   y: 177,
+   w: 44,
+   h: 44,
+   medframe: 0,
+
+   draw : function()
+   {
+      let medal = this.medalarr[this.medframe];
+
+      if (state.current == state.over) {
+        ctx.drawImage(sprite, medal.sX, medal.sY, this.w, this.h, this.x, this.y, this.w, this.h);
+      }
+   },
+   update: function () {
+       if (score.value == 0) {
+        this.medframe = 0;
+       }
+        if (score.value >= 5) {
+        this.medframe = 1;
+       }
+       if(score.value >= 10)
+       {
+        this.medframe = 2;
+       }
+       if(score.value >= 20)
+       {
+         this.medframe = 3;
+       }
+    }
+}
+
 //Draw
 function draw()
 {
-  ctx.fillStyle = "#192755";
+  ctx.fillStyle = "#373A75";
   ctx.fillRect(0, 0, cvs.width, cvs.height);
 
   star.draw();
   bg.draw();
   apartments.draw();
-  friend.draw();
+  friend.draw(sprite);
+
+  if(score.value >= 10)
+    friend.draw(sprite3);
+  if(score.value >= 20)
+    friend.draw(sprite4);
+
   fg.draw();
   getReady.draw();
   gameOver.draw();
   score.draw();
+  medal.draw();
 }
 
 //Update
@@ -398,6 +461,7 @@ function update() {
   friend.update();
   fg.update();
   apartments.update();
+  medal.update();
 }
 
 //Loop
